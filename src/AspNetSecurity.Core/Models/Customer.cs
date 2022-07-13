@@ -26,9 +26,9 @@ namespace AspNetSecurity.Core.Models
         }
     }
 
-    public class CustomerId
+    public record CustomerId
     {
-        private string Id { get; set; }
+        private string Id { get; }
 
         public CustomerId(string customerId)
         {
