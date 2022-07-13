@@ -1,10 +1,12 @@
 ﻿using System.Data;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AspNetSecurity.Core.Models
 {
     public class Customer
     {
-        public string CustomerId { get; set; }
+        public CustomerId CustomerId { get; set; }
 
         public string CompanyName { get; set; }
 
@@ -16,7 +18,7 @@ namespace AspNetSecurity.Core.Models
         {
             return new Customer()
             {
-                CustomerId = (string) arg["CustomerID"],
+                CustomerId = new CustomerId((string) arg["CustomerID"]),
                 CompanyName = (string) arg["CompanyName"],
                 ContactName = arg["ContactName"] as string,
                 ContactTitle = arg["ContactTitle"] as string,
@@ -24,60 +26,36 @@ namespace AspNetSecurity.Core.Models
         }
     }
 
-    //[JsonConverter(typeof(CustomerIdClassConverter))]
-    //public class CustomerId
-    //{
-    //    private string _id;
-    //    public string Id => _id;
+    public class CustomerId
+    {
+        private string Id { get; set; }
 
-    //    public CustomerId(string customerId)
-    //    {
-    //        if (customerId.Length != 5)
-    //            throw new ArgumentException("Invalid Id");
+        public CustomerId(string customerId)
+        {
+            if (customerId.Length != 5)
+                throw new ArgumentException("Invalid Id");
 
-    //        if (customerId.Any(c => !char.IsLetter(c)))
-    //            throw new ArgumentException("Invalid Id");
+            if (customerId.Any(c => !char.IsLetter(c)))
+                throw new ArgumentException("Invalid Id");
 
-    //        _id = customerId;
-    //    }
-    //}
+            Id = customerId;
+        }
 
-    //public class CustomerIdClassConverter : JsonConverter
-    //{
-    //    public override bool CanConvert(Type objectType)
-    //    {
-    //        if (objectType == typeof(CustomerId))
-    //            return true;
+        public string AsString => Id;
+    }
 
-    //        return false;
-    //    }
+    public class CustomerIdConverter : JsonConverter<CustomerId>
+    {
+        public override CustomerId Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options) =>
+                new CustomerId(reader.GetString()!);
 
-    //    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    //    {
-    //        if (reader.Value is string id)
-    //        {
-    //            return new CustomerId(id);
-    //        }
-    //        reader.Read();
-    //        if ("id".Equals(reader.Value as string, StringComparison.OrdinalIgnoreCase))
-    //        {
-    //            //we have an id property, just read it
-    //            reader.Read();
-    //            return new CustomerId(reader.Value as string);
-    //        }
-
-    //        throw new ArgumentException("Value is not a valid id");
-    //    }
-
-    //    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    //    {
-    //        if (value is CustomerId customerId)
-    //        {
-    //            var o = JToken.FromObject(customerId.Id);
-    //            o.WriteTo(writer);
-    //            return;
-    //        }
-    //        throw new ArgumentException("Value is not a valid id");
-    //    }
-    //}
+        public override void Write(
+            Utf8JsonWriter writer,
+            CustomerId customerId,
+            JsonSerializerOptions options) =>
+                writer.WriteStringValue(customerId.AsString);
+    }
 }
