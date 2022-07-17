@@ -13,7 +13,7 @@ namespace AspNetSecurity.Tests
         public void OneTimeSetUp()
         {
             _databaseName = "TESTDB_" + Guid.NewGuid().ToString().Replace("-", "");
-            DataAccess.SetConnectionString(Constants.TestConnectionString);
+            DataAccess.SetConnectionString(Constants.TestConnectionString.Replace("db-name-here", "master"));
             _sut = new DatabaseManager();
             _sut.CreateDatabase(_databaseName);
 
@@ -28,18 +28,49 @@ CREATE TABLE [dbo].[MyTable](
 	[CustomerID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]").ExecuteNonQuery();
+
+            DataAccess.CreateQuery(@$"USE {_databaseName}
+
+CREATE TABLE [dbo].[TransientUsers](
+	[Password] [varchar](50) NOT NULL,
+	[UserName] [varchar](50) NOT NULL,
+
+ CONSTRAINT [PK_TransientUsers] PRIMARY KEY CLUSTERED 
+(
+	[UserName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]").ExecuteNonQuery();
+
+            DataAccess.SetConnectionString(Constants.TestConnectionString.Replace("db-name-here", _databaseName));
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            var dbNames = DataAccess.CreateQuery("SELECT name from sys.databases").ExecuteList<string>();
-            foreach (var dbName in dbNames)
+            try
             {
-                if (dbName.StartsWith("TESTDB_"))
+                var dbNames = DataAccess.CreateQuery("SELECT name from sys.databases").ExecuteList<string>();
+                foreach (var dbName in dbNames)
                 {
-                    using (DisableTransactionScope.Enter()) DataAccess.CreateQuery($"DROP DATABASE {dbName}").ExecuteNonQuery();
+                    if (dbName.StartsWith("TESTDB_"))
+                    {
+                        using (DisableTransactionScope.Enter()) DataAccess.CreateQuery($"USE [master]; ALTER DATABASE [{dbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE {dbName}").ExecuteNonQuery();
+                    }
                 }
+
+                var logins = DataAccess.CreateQuery("select sp.name as login from sys.server_principals sp").ExecuteList<string>();
+                foreach (var login in logins)
+                {
+                    if (login.StartsWith("TESTUSER_"))
+                    {
+                        using (DisableTransactionScope.Enter())
+                            DataAccess.CreateQuery($"USE [master]; DROP LOGIN [{login}];").ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -59,18 +90,29 @@ CREATE TABLE [dbo].[MyTable](
         }
 
         [Test]
-        public void Can_create_user()
+        public void Can_create_new_user()
         {
-            var userPassword = _sut.EnsureUser(_databaseName, "Frank", new[] { "MyTable"});
+            var userName = "TESTUSER_" + Guid.NewGuid().ToString().Replace("-", "");
+            var userPassword = _sut.EnsureUser(_databaseName, userName, new[] { "MyTable" });
             Assert.IsNotNull(userPassword);
-            var user = DataAccess.CreateQuery(@"select sp.name,
+            var user = DataAccess.CreateQuery(@$"select sp.name,
        sp.type_desc as login_type
       
 from sys.server_principals sp
-where sp.name = 'Frank'")
+where sp.name = '{userName}'")
                 .ExecuteScalar<string>();
 
-            Assert.That(user, Is.EqualTo("Frank"));
+            Assert.That(user, Is.EqualTo(userName));
+        }
+
+        [Test]
+        public void Can_recover_password_of_existing_user()
+        {
+            var userName = "TESTUSER_" + Guid.NewGuid().ToString().Replace("-", "");
+            var userPassword1 = _sut.EnsureUser(_databaseName, userName, new[] { "MyTable" });
+            var userPassword2 = _sut.EnsureUser(_databaseName, userName, new[] { "MyTable" });
+            Assert.IsNotNull(userPassword1);
+            Assert.That(userPassword1, Is.EqualTo(userPassword2));
         }
     }
 }

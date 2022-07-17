@@ -1,10 +1,11 @@
 ﻿using AspNetSecurity.Core.Helpers;
-using AspNetSecurity.Core.Models;
 
 namespace AspNetSecurity.Core.SqlHelpers
 {
     public class DatabaseManager
     {
+        private Dictionary<string, string> _connections  = new Dictionary<string, string>();
+
         public void CreateDatabase(string databaseName)
         {
             using (DisableTransactionScope.Enter())
@@ -21,6 +22,14 @@ namespace AspNetSecurity.Core.SqlHelpers
                 .ExecuteList<string>().Count > 0;
         }
 
+        public bool LoginExists(string userName)
+        {
+            return DataAccess
+               .CreateQuery("select sp.name as login from sys.server_principals sp where sp.name = {userName}")
+               .SetStringParam("userName", userName)
+               .ExecuteList<string>().Count > 0;
+        }
+
         /// <summary>
         /// Ensure that a user is present on a datbase with read permission to certain
         /// list of tables
@@ -32,19 +41,47 @@ namespace AspNetSecurity.Core.SqlHelpers
         /// <exception cref="NotImplementedException"></exception>
         public string EnsureUser(string databaseName, string userName, string[] readonlyTables)
         {
+            //check if the user exists
+            var loginExists = this.LoginExists(userName);
             string password = Guid.NewGuid().ToString();
-            DataAccess
-                .CreateQuery(@$"use {databaseName}
-CREATE LOGIN {userName} WITH PASSWORD = '{password}';
-CREATE USER {userName} FOR LOGIN {userName}; 
-").ExecuteNonQuery();
-
-            foreach (var table in readonlyTables)
+            if (!loginExists)
             {
-                DataAccess.CreateQuery($"GRANT SELECT ON {table} to [{userName}]").ExecuteNonQuery();
+                DataAccess
+                    .CreateQuery("INSERT INTO [dbo].[TransientUsers] ([UserName],[Password]) VALUES ({userName}, {pwd})")
+                    .SetStringParam("userName", userName)
+                    .SetStringParam("pwd", password)
+                    .ExecuteNonQuery();
+
+                DataAccess
+                   .CreateQuery(@$"use {databaseName}
+                        CREATE LOGIN {userName} WITH PASSWORD = '{password}'")
+                   .ExecuteNonQuery();
+                DataAccess
+                   .CreateQuery(@$"use {databaseName}
+                    CREATE USER {userName} FOR LOGIN {userName};")
+                   .ExecuteNonQuery();
+                foreach (var table in readonlyTables)
+                {
+                    DataAccess.CreateQuery($"use {databaseName}; GRANT SELECT ON {table} to [{userName}]").ExecuteNonQuery();
+                }
+            }
+            else
+            {
+                // we need to grab the password from the transient user
+                password = DataAccess
+                    .CreateQuery("Select Password from [dbo].[TransientUsers] where username = {username}")
+                        .SetStringParam("username", userName)
+                        .ExecuteScalar<string>();
             }
 
+            _connections[userName] = DataAccess.ConnectionString.Replace("Integrated Security=SSPI", $"user={userName};password={password}");
+
             return password;
+        }
+
+        public string GetConnectionStringForUser(string userName) 
+        {
+            return _connections[userName];
         }
     }
 }

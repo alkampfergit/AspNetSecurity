@@ -511,6 +511,13 @@ namespace AspNetSecurity.Core.SqlHelpers
             return new SqlQuery(s, CommandType.Text);
         }
 
+        public static SqlQuery CreateQueryOn(string connectionString, string s)
+        {
+            var query = new SqlQuery(s, CommandType.Text);
+            query.Connection = connectionString;
+            return query;
+        }
+
         #endregion
     }
 }

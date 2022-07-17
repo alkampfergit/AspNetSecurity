@@ -17,11 +17,11 @@ namespace AspNetSecurity.Api.Controllers
         {
             _productDao = productDao;
         }
-
+        
         [SwaggerResponse(200, type: typeof(Product))]
         [HttpGet]
         [Route("products/{productId}")]
-        public IActionResult GetProductVulnerable(int productId)
+        public IActionResult GetProductVulnerable(string productId)
         {
             return Ok(_productDao.GetProductById(productId));
         }

@@ -1,3 +1,4 @@
+using AspNetSecurity.Api.Startup;
 using AspNetSecurity.Core.Models;
 using AspNetSecurity.Core.Services;
 using AspNetSecurity.Core.SqlHelpers;
@@ -17,6 +18,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ProductDao>();
+builder.Services.AddSingleton<DatabaseManager>();
+
+builder.Services.AddHostedService<SqlManagerHostedService>();
 
 var app = builder.Build();
 

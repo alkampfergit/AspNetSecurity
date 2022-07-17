@@ -10,11 +10,7 @@ CREATE USER NWProductReader FOR LOGIN NWProductReader;
 GRANT SELECT ON dbo.products to [NWProductReader]
 
 
-select sp.name as login,
-       sp.type_desc as login_type
-      
-from sys.server_principals sp
-where sp.name = 'NWProductReader'
+select sp.name as login from sys.server_principals sp where sp.name = 'NWProductReader'
 
 ALTER LOGIN [NWProductReader] WITH PASSWORD = '123abcABC1245';
 ```
