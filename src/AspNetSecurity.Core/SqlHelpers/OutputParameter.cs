@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace AspNetSecurity.Core.DataAccess
+﻿namespace AspNetSecurity.Core.SqlHelpers
 {
     internal class OutputParameter
     {
-        public object Value { get; set; }
+        public object? Value { get; set; }
         public string Name { get; set; }
         public Type Type { get; set; }
 

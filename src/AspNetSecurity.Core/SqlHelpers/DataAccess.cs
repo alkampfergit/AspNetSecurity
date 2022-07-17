@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using AspNetSecurity.Core.Helpers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +7,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace AspNetSecurity.Core.DataAccess
+namespace AspNetSecurity.Core.SqlHelpers
 {
     public static class DataAccess
     {
@@ -116,7 +117,6 @@ namespace AspNetSecurity.Core.DataAccess
                 }
             }
 
-
             /// <summary>
             /// preso un comando lo enlista alla connessione e transazione correnti.
             /// </summary>
@@ -135,13 +135,14 @@ namespace AspNetSecurity.Core.DataAccess
                 _connection = new SqlConnection();
                 _connection.ConnectionString = ConnectionString;
                 _connection.Open();
-                _transaction = _connection.BeginTransaction();
+                if (!DisableTransaction.Value)
+                {
+                    _transaction = _connection.BeginTransaction();
+                }
                 dbCommand.Connection = _connection;
                 dbCommand.Transaction = Transaction;
             }
         }
-
-        //#endregion
 
         #region Static Initialization
 
@@ -159,6 +160,8 @@ namespace AspNetSecurity.Core.DataAccess
         #endregion
 
         #region Execution core
+
+        public static AsyncLocal<bool> DisableTransaction = new AsyncLocal<bool>();
 
         private static ConnectionData CreateConnection(string connection)
         {

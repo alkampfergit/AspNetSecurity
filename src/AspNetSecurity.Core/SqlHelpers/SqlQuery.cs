@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Reflection;
 using System.Text;
 
-namespace AspNetSecurity.Core.DataAccess
+namespace AspNetSecurity.Core.SqlHelpers
 {
     public class SqlQuery
     {

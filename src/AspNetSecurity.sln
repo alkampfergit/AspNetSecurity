@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetSecurity.Core", "AspNetSecurity.Core\AspNetSecurity.Core.csproj", "{4E72FB54-98DD-457D-A7F1-EC31AEBF905B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetSecurity.Core", "AspNetSecurity.Core\AspNetSecurity.Core.csproj", "{4E72FB54-98DD-457D-A7F1-EC31AEBF905B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetSecurity.Api", "AspNetSecurity.Api\AspNetSecurity.Api.csproj", "{01CCF6C5-8ADB-49A9-8ABA-F24C1EAD9A7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetSecurity.Api", "AspNetSecurity.Api\AspNetSecurity.Api.csproj", "{01CCF6C5-8ADB-49A9-8ABA-F24C1EAD9A7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetSecurity.Tests", "AspNetSecurity.Tests\AspNetSecurity.Tests.csproj", "{B4CFF9DD-D242-4938-A3FC-8A117A900149}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{01CCF6C5-8ADB-49A9-8ABA-F24C1EAD9A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01CCF6C5-8ADB-49A9-8ABA-F24C1EAD9A7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01CCF6C5-8ADB-49A9-8ABA-F24C1EAD9A7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4CFF9DD-D242-4938-A3FC-8A117A900149}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4CFF9DD-D242-4938-A3FC-8A117A900149}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4CFF9DD-D242-4938-A3FC-8A117A900149}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4CFF9DD-D242-4938-A3FC-8A117A900149}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

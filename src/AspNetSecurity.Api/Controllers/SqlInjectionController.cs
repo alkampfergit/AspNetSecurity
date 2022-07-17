@@ -1,5 +1,6 @@
-﻿using AspNetSecurity.Core.DataAccess;
-using AspNetSecurity.Core.Models;
+﻿using AspNetSecurity.Core.Models;
+using AspNetSecurity.Core.Services;
+using AspNetSecurity.Core.SqlHelpers;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -9,14 +10,20 @@ namespace AspNetSecurity.Api.Controllers
     [ApiController]
     public class SqlInjectionController : Controller
     {
+        private readonly ProductDao _productDao;
+
+        public SqlInjectionController(
+            ProductDao productDao) 
+        {
+            _productDao = productDao;
+        }
+
         [SwaggerResponse(200, type: typeof(Product))]
         [HttpGet]
         [Route("products/{productId}")]
-        public IActionResult GetProductVulnerable(String productId)
+        public IActionResult GetProductVulnerable(int productId)
         {
-            var query = DataAccess.CreateQuery($"Select * from dbo.Products where productId = {productId}");
-            var product = query.ExecuteBuildSingleEntity(Product.Builder);
-            return Ok(product);
+            return Ok(_productDao.GetProductById(productId));
         }
 
         //[SwaggerResponse(200, typeof(Customer))]

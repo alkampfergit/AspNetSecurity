@@ -1,5 +1,6 @@
-using AspNetSecurity.Core.DataAccess;
 using AspNetSecurity.Core.Models;
+using AspNetSecurity.Core.Services;
+using AspNetSecurity.Core.SqlHelpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<ProductDao>();
 
 var app = builder.Build();
 
