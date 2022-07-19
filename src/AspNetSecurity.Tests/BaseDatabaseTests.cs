@@ -32,7 +32,7 @@ CREATE TABLE [dbo].[MyTable](
             DataAccess.CreateQuery(@$"USE {_databaseName}
 
 CREATE TABLE [dbo].[TransientUsers](
-	[Password] [varchar](50) NOT NULL,
+	[Password] [varchar](64) NOT NULL,
 	[UserName] [varchar](50) NOT NULL,
 
  CONSTRAINT [PK_TransientUsers] PRIMARY KEY CLUSTERED 

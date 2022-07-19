@@ -1,4 +1,5 @@
 ﻿using AspNetSecurity.Core.Helpers;
+using AspNetSecurity.Core.Services;
 
 namespace AspNetSecurity.Core.SqlHelpers
 {
@@ -43,7 +44,7 @@ namespace AspNetSecurity.Core.SqlHelpers
         {
             //check if the user exists
             var loginExists = this.LoginExists(userName);
-            string password = Guid.NewGuid().ToString();
+            string password = PasswordHelper.GeneratePassword();
             if (!loginExists)
             {
                 DataAccess
