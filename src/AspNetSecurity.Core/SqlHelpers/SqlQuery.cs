@@ -190,7 +190,7 @@ namespace AspNetSecurity.Core.SqlHelpers
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //logger.Error("Error executing " + DataAccess.DumpCommand(Command), ex);
                     retvalue = null;

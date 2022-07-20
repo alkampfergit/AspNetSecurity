@@ -47,6 +47,7 @@ CREATE TABLE [dbo].[TransientUsers](
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
+            DataAccess.SetConnectionString(Constants.TestConnectionString.Replace("db-name-here", "master"));
             try
             {
                 var dbNames = DataAccess.CreateQuery("SELECT name from sys.databases").ExecuteList<string>();

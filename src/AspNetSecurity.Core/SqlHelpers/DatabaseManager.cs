@@ -44,7 +44,7 @@ namespace AspNetSecurity.Core.SqlHelpers
         {
             //check if the user exists
             var loginExists = this.LoginExists(userName);
-            string password = PasswordHelper.GeneratePassword();
+            string password = PasswordHelper.GeneratePassword(32);
             if (!loginExists)
             {
                 DataAccess
