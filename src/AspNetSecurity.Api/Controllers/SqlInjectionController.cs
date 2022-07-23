@@ -26,6 +26,24 @@ namespace AspNetSecurity.Api.Controllers
             return Ok(_productDao.GetProductById(productId));
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //Test code.
+
+
         //[SwaggerResponse(200, typeof(Customer))]
         //[HttpGet]
         //[Route("customers/{customerId}")]
